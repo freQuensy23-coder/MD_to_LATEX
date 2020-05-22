@@ -91,7 +91,7 @@ string replace_bold_alternative(string MD) {
 	//__Bold text. Spaces are avalible. "_" too, but only single__
 	//\textbf{Bold text. Spaces are avalible. "_" too, but single}
 
-	regex bold_text("\\*\\*([^\\*{1}])(.*?)\\*\\*");
+	regex bold_text("\\*\\*([^\\*{1}])(.+?)\\*\\*");
 
 	MD = regex_replace(MD, bold_text, "\\textbf{$1$2}");
 
@@ -107,7 +107,7 @@ string replace_italic(string MD) {
 
 
 string replace_italic_alternative(string MD) {
-	regex bold_text("\\*(.*?)\\*");
+	regex bold_text("\\*([^*]+?)\\*");
 
 	MD = regex_replace(MD, bold_text, "\\textit{$1}");
 
@@ -134,9 +134,12 @@ string replace_line_alternative(string MD) {
 
 
 string replace_code_area(string MD) {
-	regex line("```(.*)\n([.\n]*)```");
+	regex line("```(.*)\n([\\s\\S]*?)```");
 	
-	string tex = regex_replace(MD, line, "\\lstset{language=$1}\n\\begin{lstlisting}$2\end{lstlisting}");
+	cout << "1234566544321";
+
+	string tex = regex_replace(MD, line, "\\lstset{language=$1}\n\\begin{lstlisting}$2\\end{lstlisting}");
+	//string tex = regex_replace(MD, line, "lalalala");
 
 	if (tex != MD) {
 		::code_area_found = true;
@@ -144,6 +147,7 @@ string replace_code_area(string MD) {
 
 	return tex;
 }
+
 
 
 string module_manager() {
@@ -163,6 +167,7 @@ string module_manager() {
 
 string convert(string MD)
 {
+	MD = replace_code_area(MD);
 	MD = replace_heading(MD);
 	MD = replace_heading_alternative(MD);
 	MD = replace_images(MD);
@@ -171,9 +176,8 @@ string convert(string MD)
 	MD = replace_bold_alternative(MD);
 	MD = replace_italic(MD);
 	MD = replace_italic_alternative(MD);
-	//MD = replace_line(MD);
+	MD = replace_line(MD);
 	MD = replace_line_alternative(MD);
-	MD = replace_code_area(MD);
 	MD = "\\begin{document} \n" + MD;        //preamble
 	MD = module_manager() + MD;
 	MD = "\\documentclass{article} \n " + MD + "\n\\end{document}";
@@ -227,11 +231,7 @@ void file_write(string file_name, string text) {
 
 int main(int argc, char* argv[])
 {
-
-
-
-	//Getting file name
-	if (true) {
+	if (argc == 1) {
 		string file_input = argv[1];
 
 
